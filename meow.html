@@ -210,12 +210,13 @@
         }
 
         .hero-name {
-            font-family: 'Google Sans', sans-serif;
+            font-family: 'Playfair Display', serif;
             font-weight: 800;
-            font-style: normal;
+            font-style: italic;
             font-size: clamp(6rem, 15vw, 12rem);
             line-height: 1;
             letter-spacing: -0.03em;
+            padding-right: 0.15em;
             background: linear-gradient(155deg, #f5f0ff 0%, #c4b5fd 35%, #8b5cf6 65%, #e879f9 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -412,14 +413,14 @@
         /* ── STAFF CARDS ── */
         .staff-grid {
             display: flex;
-            flex-wrap: wrap;
-            gap: 5rem;
+            flex-wrap: nowrap;
+            gap: 1.5rem;
             justify-content: center;
             margin-top: 4rem;
         }
 
         .staff-card {
-            width: 180px;
+            width: 230px;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -428,7 +429,7 @@
         }
 
         .staff-skin {
-            width: 140px;
+            width: 210px;
             image-rendering: pixelated;
             filter: drop-shadow(0 10px 20px rgba(109, 40, 217, 0.5));
             transform: translateZ(30px);
@@ -854,14 +855,12 @@
 
                 <div class="hero-skins-container">
                     <div class="hero-skin-wrapper left parallax-skin" data-speed="0.8">
-                        <img class="hero-skin" src="https://minotar.net/body/imascraaab/120" alt="imascraaab"
-                            onerror="this.onerror=null;this.src='https://minotar.net/body/steve/120'">
+                        <div class="hero-skin" id="skin-imascraaab"></div>
                         <span class="skin-ign">imascraaab</span>
                         <span class="skin-role" style="color: var(--gold)">Owner</span>
                     </div>
                     <div class="hero-skin-wrapper right parallax-skin" data-speed="0.85">
-                        <img class="hero-skin" src="https://minotar.net/body/LocalDiskC/120" alt="LocalDiskC"
-                            onerror="this.onerror=null;this.src='https://minotar.net/body/steve/120'">
+                        <div class="hero-skin" id="skin-LocalDiskC"></div>
                         <span class="skin-ign">LocalDiskC</span>
                         <span class="skin-role" style="color: var(--gold)">Owner &middot; Nex</span>
                     </div>
@@ -955,12 +954,11 @@
                         style="margin-top: 3rem">Guild Discord</a>
                 </div>
                 <div class="credits-right">
-                    <img class="credits-skin fade-up" src="https://minotar.net/body/xAPS_/180" alt="xAPS_"
-                        onerror="this.onerror=null;this.src='https://minotar.net/body/steve/180'">
+                    <div class="credits-skin fade-up" id="skin-xAPS_"></div>
                 </div>
             </div>
             <div class="footer">
-                © 2025 MeoW Guild &nbsp;&middot;&nbsp; Pika Network
+                © 2026 MeoW Guild &nbsp;&middot;&nbsp; Pika Network &nbsp;&middot;&nbsp; xAPS_
             </div>
         </section>
 
@@ -971,13 +969,15 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 
+    <script src="https://unpkg.com/skinview3d@3.0.0/bundles/skinview3d.bundle.js"></script>
+
     <script>
         // ── CONFIG ──
         const STAFF = [
-            { ign: 'RubenInParis', role: 'Executive', alias: '', type: 'exec' },
-            { ign: 'SoftFrancaisToast', role: 'Executive', alias: '', type: 'exec' },
-            { ign: 'The_WarHummer', role: 'Officer', alias: '', type: 'officer' },
-            { ign: 'scarqing', role: 'Officer', alias: '', type: 'officer' }
+            { ign: 'RubenInParis', role: 'Executive', alias: '', type: 'exec', pose: 'crying' },
+            { ign: 'SoftFrancaisToas', role: 'Executive', alias: '', type: 'exec', pose: 'high_five' },
+            { ign: 'The_WarHummer', role: 'Officer', alias: '', type: 'officer', pose: 'archer' },
+            { ign: 'scarqing', role: 'Officer', alias: '', type: 'officer', pose: 'pointing' }
         ];
 
         const REQS = [
@@ -994,7 +994,7 @@
             const speed = 1 + (Math.random() * 0.2 - 0.1);
             const html = `
                 <div class="staff-card tilt-card fade-up" data-speed="${speed}" style="transition-delay: ${i * 0.1}s">
-                    <img class="staff-skin" src="https://minotar.net/body/${member.ign}/160" alt="${member.ign}" onerror="this.onerror=null;this.src='https://minotar.net/body/steve/160'">
+                    <div class="staff-skin" id="skin-${member.ign}"></div>
                     <span class="staff-name">${member.ign}</span>
                     ${member.alias ? `<span class="staff-alias">${member.alias}</span>` : ''}
                     <div style="display: flex; flex-direction: column; gap: 0.5rem; margin-top: 1rem; transform: translateZ(25px); align-items: center;">
@@ -1330,6 +1330,88 @@
             });
             card.addEventListener('mouseleave', () => {
                 gsap.to(card, { rotationY: 0, rotationX: 0, duration: 0.7, ease: "power2.out" });
+            });
+        });
+
+        // ── SKINVIEW3D INITIALIZATION ──
+        function createSkinViewer(id, ign, pose, w, h) {
+            const container = document.getElementById(id);
+            if (!container) return;
+
+            const viewer = new skinview3d.SkinViewer({
+                width: w,
+                height: h,
+                skin: `https://minotar.net/skin/${ign}`
+            });
+
+            // Adjust camera & lighting for good isometric look
+            viewer.camera.position.set(20, 20, 40);
+            viewer.camera.lookAt(0, 0, 0);
+            viewer.autoRotate = false;
+            viewer.autoRotateSpeed = 0.5;
+
+            // Set poses using basic bone rotations
+            const p = viewer.playerObject;
+            p.rotation.y = 0;
+            if (pose === 'crossed') {
+                p.skin.leftArm.rotation.z = 0.5;
+                p.skin.rightArm.rotation.z = -0.5;
+            } else if (pose === 'lunging') {
+                p.skin.leftLeg.rotation.x = -0.5;
+                p.skin.rightLeg.rotation.x = 0.5;
+                p.skin.leftArm.rotation.x = 0.5;
+            } else if (pose === 'sitting') {
+                p.skin.leftLeg.rotation.x = -Math.PI / 2.5;
+                p.skin.rightLeg.rotation.x = -Math.PI / 2.5;
+                p.skin.leftLeg.rotation.y = -0.2;
+                p.skin.rightLeg.rotation.y = 0.2;
+                p.skin.leftArm.rotation.x = -0.3;
+                p.skin.rightArm.rotation.x = -0.3;
+                p.position.y = -5;
+            } else if (pose === 'standing') {
+                // Standing pose: reset all rotations
+                p.skin.head.rotation.set(0, 0, 0);
+                p.skin.leftArm.rotation.set(0, 0, 0);
+                p.skin.rightArm.rotation.set(0, 0, 0);
+                p.skin.leftLeg.rotation.set(0, 0, 0);
+                p.skin.rightLeg.rotation.set(0, 0, 0);
+            } else if (pose === 'reading') {
+                p.skin.head.rotation.x = 0.2;
+                p.skin.leftArm.rotation.x = -0.5;
+                p.skin.rightArm.rotation.x = -0.5;
+            } else if (pose === 'high_five') {
+                p.skin.rightArm.rotation.z = Math.PI;
+            } else if (pose === 'archer') {
+                p.skin.leftArm.rotation.z = Math.PI / 2;
+                p.skin.rightArm.rotation.z = Math.PI / 2;
+                p.skin.rightArm.rotation.y = -0.5;
+            } else if (pose === 'pointing') {
+                p.skin.rightArm.rotation.x = -Math.PI / 2;
+            } else if (pose === 'waving') {
+                p.skin.rightArm.rotation.x = Math.PI - 0.5;
+                p.skin.rightArm.rotation.z = -0.5;
+            } else if (pose === 'crying') {
+                p.skin.head.rotation.x = 0.5;
+                p.skin.leftArm.rotation.x = Math.PI - 0.5;
+                p.skin.rightArm.rotation.x = Math.PI - 0.5;
+                p.skin.leftArm.rotation.z = -0.5;
+                p.skin.rightArm.rotation.z = 0.5;
+            }
+
+            container.appendChild(viewer.canvas);
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            // Hero
+            createSkinViewer('skin-imascraaab', 'imascraaab', 'sitting', 280, 480);
+            createSkinViewer('skin-LocalDiskC', 'LocalDiskC', 'lunging', 280, 480);
+
+            // Credits
+            createSkinViewer('skin-xAPS_', 'xAPS_', 'waving', 340, 680);
+
+            // Staff (Generated by JS earlier in the flow, so they exist in DOM now)
+            STAFF.forEach(member => {
+                createSkinViewer(`skin-${member.ign}`, member.ign, member.pose, 210, 420);
             });
         });
 
