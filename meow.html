@@ -846,7 +846,10 @@
             <div class="hero-vignette"></div>
 
             <div class="hero-content">
-                <div class="hero-title-group">
+                <!-- PRELOADER OVERLAY -->
+                <div id="site-overlay" style="position: fixed; inset: 0; background-color: var(--void); z-index: 1;"></div>
+                
+                <div class="hero-title-group" style="position: relative; z-index: 10;">
                     <div class="hero-welcome">welcome to</div>
                     <h1 class="hero-name">MeoW</h1>
                     <div class="hero-tag">W Pikachu Guild</div>
@@ -1230,17 +1233,92 @@
         // ── GSAP ANIMATIONS ──
         gsap.registerPlugin(ScrollTrigger);
 
-        // Hero Load Animation
-        const tl = gsap.timeline();
-        tl.to('.hero-welcome', { y: 0, opacity: 1, duration: 1.2, ease: "power3.out" }, 0.2)
-            .from('.hero-name', {
-                y: 50, opacity: 0, scale: 0.8,
-                duration: 1.5,
-                ease: "elastic.out(1, 0.5)"
-            }, 0.5)
-            .to('.hero-tag', { opacity: 1, duration: 1 }, 1.2)
-            .to('.hero-btn', { opacity: 1, y: -10, duration: 1, ease: "power2.out" }, 1.4)
-            .to('.hero-skin-wrapper', { opacity: 1, y: -20, duration: 1.5, stagger: 0.2, ease: "power3.out" }, 1.2);
+        // ── PRELOADER & HERO ANIMATION ──
+        // Initial State — hide everything except the title group
+        gsap.set('.hero-title-group', { opacity: 0 });
+        gsap.set('.hero-welcome', { opacity: 0, y: 20 });
+        gsap.set('.hero-tag', { opacity: 0 });
+        gsap.set('.hero-btn', { opacity: 0, y: 10 });
+        gsap.set('.nav-credits-btn', { opacity: 0, x: 20 });
+        // hero-skin-wrappers already start at opacity:0 in CSS
+
+        // Disable scroll during preloader
+        lenis.stop();
+
+        // ── INCANDESCENT LIGHT FLICKER ──
+        // Simulates a tungsten bulb warming up:
+        // dim amber flickers → build-up → full bright reveal
+        const flickerKeyframes = [
+            { progress: 0,    opacity: 0     },   // off
+            { progress: 0.05, opacity: 0.08  },   // first dim ember
+            { progress: 0.08, opacity: 0     },   // cuts out
+            { progress: 0.13, opacity: 0.15  },   // slightly brighter
+            { progress: 0.16, opacity: 0.03  },   // dip
+            { progress: 0.22, opacity: 0.25  },   // warming
+            { progress: 0.25, opacity: 0.10  },   // dip
+            { progress: 0.30, opacity: 0.35  },   // building
+            { progress: 0.33, opacity: 0.20  },   // dip
+            { progress: 0.40, opacity: 0.55  },   // noticeably on
+            { progress: 0.44, opacity: 0.40  },   // flicker
+            { progress: 0.50, opacity: 0.70  },   // almost there
+            { progress: 0.53, opacity: 0.55  },   // last dip
+            { progress: 0.60, opacity: 0.85  },   // nearly full
+            { progress: 0.65, opacity: 0.78  },   // small wobble
+            { progress: 0.75, opacity: 1.0   },   // FULL BRIGHT
+            { progress: 1.0,  opacity: 1.0   },   // holds
+        ];
+
+        // Drive the flicker via GSAP ticker for fine-grain control
+        const flickerDuration = 2.2; // seconds for the bulb warm-up
+        const flickerStart = gsap.ticker.time;
+
+        const flickerTick = () => {
+            const elapsed = gsap.ticker.time - flickerStart;
+            const progress = Math.min(elapsed / flickerDuration, 1);
+
+            // Find surrounding keyframes
+            let a = flickerKeyframes[0], b = flickerKeyframes[flickerKeyframes.length - 1];
+            for (let i = 0; i < flickerKeyframes.length - 1; i++) {
+                if (progress >= flickerKeyframes[i].progress && progress <= flickerKeyframes[i + 1].progress) {
+                    a = flickerKeyframes[i];
+                    b = flickerKeyframes[i + 1];
+                    break;
+                }
+            }
+            const t = (b.progress - a.progress) === 0 ? 1 : (progress - a.progress) / (b.progress - a.progress);
+            const opacity = a.opacity + (b.opacity - a.opacity) * t;
+
+            gsap.set('.hero-title-group', { opacity });
+
+            if (progress >= 1) {
+                gsap.ticker.remove(flickerTick);
+                // Kick off the site reveal
+                revealSite();
+            }
+        };
+        gsap.ticker.add(flickerTick);
+
+        function revealSite() {
+            const revealTl = gsap.timeline();
+            // Ensure title is fully visible
+            revealTl.set('.hero-title-group', { opacity: 1 })
+            // Site-wide overlay dissolves away
+            .to('#site-overlay', {
+                opacity: 0,
+                duration: 1.4,
+                ease: "power2.inOut",
+                onComplete: () => {
+                    document.getElementById('site-overlay').style.display = 'none';
+                    lenis.start();
+                }
+            })
+            // Remaining hero elements cascade in
+            .to('.hero-welcome',   { opacity: 1, y: 0, duration: 0.9, ease: "power3.out" }, "-=0.9")
+            .to('.hero-tag',       { opacity: 1, duration: 0.8 }, "-=0.6")
+            .to('.hero-btn',       { opacity: 1, y: 0, duration: 0.9, ease: "power2.out" }, "-=0.6")
+            .to('.hero-skin-wrapper', { opacity: 1, y: 0, duration: 1.4, stagger: 0.2, ease: "power3.out" }, "-=0.7")
+            .to('.nav-credits-btn',   { opacity: 1, x: 0, duration: 0.8, ease: "power2.out" }, "-=1.0");
+        }
 
         // Parallax Skins
         gsap.utils.toArray('.parallax-skin').forEach(skin => {
