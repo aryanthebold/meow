@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MeoW — W Pikachu Guild</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@1,300;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap"
+        rel="stylesheet">
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --void: #04030a;
+            --deep: #07051a;
+            --surface: #0c0920;
+            --card: #100d26;
+            --purple-1: #2d1b69;
+            --purple-2: #6d28d9;
+            --purple-3: #8b5cf6;
+            --purple-4: #c4b5fd;
+            --pink: #e879f9;
+            --white: #f5f0ff;
+            --muted: #7c6fa0;
+            --dim: #3d3560;
+            --gold: #fbbf24;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background: var(--void);
+            color: var(--white);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            overflow-x: hidden;
+        }
+
+        #space-canvas {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* CREDITS BUBBLE */
+        #credits-bubble {
+            position: fixed;
+            top: 1.4rem;
+            right: 1.6rem;
+            z-index: 100;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: rgba(109, 40, 217, 0.18);
+            border: 1px solid rgba(139, 92, 246, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(10px);
+            cursor: pointer;
+            transition: background 0.25s, box-shadow 0.25s, transform 0.2s;
+            text-decoration: none;
+        }
+
+        #credits-bubble:hover {
+            background: rgba(139, 92, 246, 0.3);
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.5);
+            transform: scale(1.08);
+        }
+
+        #credits-bubble svg {
+            width: 18px;
+            height: 18px;
+            stroke: var(--purple-4);
+            fill: none;
+            stroke-width: 2;
+        }
+
+        section {
+            position: relative;
+            z-index: 1;
+            padding: 7rem 2rem;
+        }
+
+        .inner {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        /* HERO */
+        #hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            padding: 0 0 5rem;
+            overflow: hidden;
+        }
+
+        .hero-layout {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            align-items: flex-end;
+            gap: 2rem;
+            width: 100%;
+            max-width: 1080px;
+            padding: 0 3rem;
+        }
+
+        .hero-owner {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.7rem;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .hero-owner.left {
+            align-items: flex-end;
+            animation-delay: 0s;
+        }
+
+        .hero-owner.right {
+            align-items: flex-start;
+            animation-delay: -3s;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0)
+            }
+
+            50% {
+                transform: translateY(-14px)
+            }
+        }
+
+        .owner-skin {
+            width: 120px;
+            image-rendering: pixelated;
+            filter: drop-shadow(0 0 28px rgba(139, 92, 246, 0.5));
+            transition: filter 0.3s;
+        }
+
+        .owner-skin:hover {
+            filter: drop-shadow(0 0 44px rgba(196, 181, 253, 0.75));
+        }
+
+        .owner-ign {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.85rem;
+            color: var(--purple-4);
+            letter-spacing: 0.04em;
+            font-weight: 500;
+        }
+
+        .owner-role {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.68rem;
+            color: var(--muted);
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            font-weight: 400;
+        }
+
+        .hero-center {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            position: relative;
+        }
+
+        .hero-glow {
+            position: absolute;
+            width: 380px;
+            height: 380px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(109, 40, 217, 0.2) 0%, rgba(139, 92, 246, 0.07) 55%, transparent 75%);
+            filter: blur(28px);
+            pointer-events: none;
+            z-index: -1;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .hero-welcome {
+            font-family: 'Cormorant Garamond', serif;
+            font-style: italic;
+            font-weight: 300;
+            font-size: 1.9rem;
+            color: var(--muted);
+            letter-spacing: 0.25em;
+            margin-bottom: 0.2rem;
+            opacity: 0;
+            animation: rise 0.8s ease forwards 0.3s;
+        }
+
+        .hero-name {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-weight: 800;
+            font-size: clamp(4.5rem, 12vw, 9rem);
+            line-height: 1;
+            letter-spacing: -0.02em;
+            background: linear-gradient(155deg, #f5f0ff 0%, #c4b5fd 35%, #8b5cf6 65%, #e879f9 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            filter: drop-shadow(0 0 50px rgba(139, 92, 246, 0.35));
+            opacity: 0;
+            animation: rise 0.9s ease forwards 0.5s;
+        }
+
+        .hero-tag {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.82rem;
+            font-weight: 400;
+            color: var(--muted);
+            letter-spacing: 0.22em;
+            margin-top: 0.6rem;
+            text-transform: uppercase;
+            opacity: 0;
+            animation: rise 0.7s ease forwards 0.72s;
+        }
+
+        .hero-btn {
+            display: inline-block;
+            margin-top: 2rem;
+            padding: 0.72rem 2.2rem;
+            background: transparent;
+            border: 1px solid rgba(139, 92, 246, 0.45);
+            border-radius: 9999px;
+            color: var(--purple-4);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 0.78rem;
+            font-weight: 600;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            text-decoration: none;
+            position: relative;
+            overflow: hidden;
+            transition: color 0.3s, border-color 0.3s, box-shadow 0.3s;
+            opacity: 0;
+            animation: rise 0.7s ease forwards 0.92s;
+        }
+
+        .hero-btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(109, 40, 217, 0.4), rgba(232, 121, 249, 0.2));
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .hero-btn:hover {
+            border-color: var(--purple-3);
+            box-shadow: 0 0 30px rgba(139, 92, 246, 0.35);
+            color: #fff;
+        }
+
+        .hero-btn:hover::before {
+            opacity: 1;
+        }
+
+        .hero-btn span {
+            position: relative;
+            z-index: 1;
+        }
+
+        @keyframes rise {
+            from {
+                opacity: 0;
+                transform: translateY(20px)
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0)
+            }
+        }
+
+        /* SECTION HEADER */
+        .sec-eyebrow {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.68rem;
+            font-weight: 500;
+            letter-spacing: 0.38em;
+            text-transform: uppercase;
+            color: var(--pink);
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .sec-title {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 800;
+            color: var(--white);
+            margin-bottom: 0.4rem;
+            line-height: 1.1;
+        }
+
+        .sec-line {
+            width: 52px;
+            height: 2px;
+            background: linear-gradient(90deg, var(--purple-3), transparent);
+            margin-bottom: 3.5rem;
+            border-radius: 9999px;
+        }
+
+        /* STAFF */
+        #staff {
+            background: transparent;
+        }
+
+        .staff-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2.5rem;
+            justify-content: center;
+        }
+
+        .staff-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0;
+            width: 130px;
+            opacity: 0;
+            transform: translateY(24px);
+            transition: opacity 0.55s ease, transform 0.55s ease;
+        }
+
+        .staff-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .staff-skin {
+            width: 90px;
+            image-rendering: pixelated;
+            filter: drop-shadow(0 8px 24px rgba(109, 40, 217, 0.4));
+            transition: filter 0.3s, transform 0.3s;
+        }
+
+        .staff-card:hover .staff-skin {
+            filter: drop-shadow(0 8px 36px rgba(196, 181, 253, 0.65));
+            transform: translateY(-7px);
+        }
+
+        .staff-info {
+            margin-top: 0.9rem;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+            align-items: center;
+        }
+
+        .staff-name {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-weight: 600;
+            font-size: 0.82rem;
+            color: var(--white);
+            word-break: break-word;
+            text-align: center;
+        }
+
+        .staff-alias {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.65rem;
+            color: var(--muted);
+            font-weight: 300;
+        }
+
+        .staff-role {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.62rem;
+            font-weight: 500;
+            letter-spacing: 0.1em;
+            padding: 0.18rem 0.6rem;
+            border-radius: 9999px;
+            text-transform: uppercase;
+        }
+
+        .role-owner {
+            background: rgba(251, 191, 36, 0.12);
+            border: 1px solid rgba(251, 191, 36, 0.3);
+            color: var(--gold);
+        }
+
+        .role-exec {
+            background: rgba(139, 92, 246, 0.12);
+            border: 1px solid rgba(139, 92, 246, 0.35);
+            color: var(--purple-4);
+        }
+
+        .role-officer {
+            background: rgba(232, 121, 249, 0.1);
+            border: 1px solid rgba(232, 121, 249, 0.3);
+            color: var(--pink);
+        }
+
+        /* REQUIREMENTS */
+        #requirements {
+            background: transparent;
+        }
+
+        .req-scroll {
+            display: flex;
+            gap: 1.4rem;
+            overflow-x: auto;
+            padding-bottom: 1.5rem;
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+            cursor: grab;
+        }
+
+        .req-scroll:active {
+            cursor: grabbing;
+        }
+
+        .req-scroll::-webkit-scrollbar {
+            display: none;
+        }
+
+        .req-card {
+            flex: 0 0 250px;
+            background: var(--card);
+            border: 1px solid rgba(109, 40, 217, 0.25);
+            border-radius: 20px;
+            padding: 1.8rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.5);
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .req-card:nth-child(1) {
+            animation: fc 5s ease-in-out infinite 0s
+        }
+
+        .req-card:nth-child(2) {
+            animation: fc 5s ease-in-out infinite -1s
+        }
+
+        .req-card:nth-child(3) {
+            animation: fc 5s ease-in-out infinite -2s
+        }
+
+        .req-card:nth-child(4) {
+            animation: fc 5s ease-in-out infinite -3s
+        }
+
+        .req-card:nth-child(5) {
+            animation: fc 5s ease-in-out infinite -4s
+        }
+
+        @keyframes fc {
+
+            0%,
+            100% {
+                transform: translateY(0)
+            }
+
+            50% {
+                transform: translateY(-8px)
+            }
+        }
+
+        .req-card:hover {
+            border-color: rgba(139, 92, 246, 0.55);
+            box-shadow: 0 8px 48px rgba(109, 40, 217, 0.3);
+        }
+
+        .req-num {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 2rem;
+            font-weight: 800;
+            color: rgba(139, 92, 246, 0.2);
+            line-height: 1;
+        }
+
+        .req-text {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--white);
+            line-height: 1.5;
+        }
+
+        .req-sub {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.86rem;
+            font-weight: 300;
+            color: var(--muted);
+            line-height: 1.6;
+        }
+
+        .req-note-box {
+            background: rgba(232, 121, 249, 0.05);
+            border: 1px solid rgba(232, 121, 249, 0.2);
+            border-radius: 14px;
+            padding: 1.2rem 1.5rem;
+            margin-top: 2rem;
+            display: flex;
+            gap: 0.9rem;
+            align-items: flex-start;
+        }
+
+        .req-note-text {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 400;
+            color: var(--pink);
+            line-height: 1.6;
+        }
+
+        .apply-wrap {
+            margin-top: 2.5rem;
+        }
+
+        .apply-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 0.85rem 2.6rem;
+            background: linear-gradient(135deg, var(--purple-1), var(--purple-2));
+            border: 1px solid rgba(139, 92, 246, 0.4);
+            border-radius: 9999px;
+            color: var(--white);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            text-decoration: none;
+            box-shadow: 0 4px 32px rgba(109, 40, 217, 0.35);
+            transition: box-shadow 0.3s, transform 0.2s;
+        }
+
+        .apply-btn:hover {
+            box-shadow: 0 4px 50px rgba(139, 92, 246, 0.55);
+            transform: translateY(-2px);
+        }
+
+        .apply-btn svg {
+            width: 15px;
+            height: 15px;
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 2.5;
+            flex-shrink: 0;
+        }
+
+        /* ABOUT */
+        #about {
+            background: transparent;
+        }
+
+        .about-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.4rem;
+        }
+
+        .about-main {
+            grid-column: 1/-1;
+            background: transparent;
+            border: none;
+            border-radius: 0;
+            padding: 0 0 1rem;
+        }
+
+        .about-main p {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 1.05rem;
+            line-height: 1.9;
+            color: rgba(245, 240, 255, 0.6);
+            font-weight: 300;
+        }
+
+        .about-main p strong {
+            color: var(--purple-4);
+            font-weight: 600;
+        }
+
+        .stat-tile {
+            background: transparent;
+            border: none;
+            border-radius: 18px;
+            padding: 1.6rem 2rem;
+            transition: background 0.3s;
+        }
+
+        .stat-tile:hover {
+            background: rgba(109, 40, 217, 0.07);
+        }
+
+        .stat-val {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--purple-4);
+            line-height: 1;
+            margin-bottom: 0.4rem;
+        }
+
+        .stat-key {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.62rem;
+            font-weight: 400;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+
+        /* CREDITS */
+        #credits {
+            background: transparent;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+        }
+
+        .credits-inner {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            gap: 5rem;
+            width: 100%;
+            flex-wrap: wrap;
+        }
+
+        .credits-left {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            max-width: 340px;
+        }
+
+        .credits-line {
+            width: 1px;
+            height: 56px;
+            background: linear-gradient(to bottom, transparent, var(--purple-3), transparent);
+        }
+
+        .credits-label {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 400;
+            color: var(--muted);
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+        }
+
+        .credits-skin {
+            width: 130px;
+            image-rendering: pixelated;
+            filter: drop-shadow(0 0 32px rgba(139, 92, 246, 0.55));
+            animation: float 5s ease-in-out infinite;
+        }
+
+        .credits-name {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-weight: 800;
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            background: linear-gradient(135deg, var(--purple-4), var(--pink));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1;
+        }
+
+        .credits-desc {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 1rem;
+            font-weight: 300;
+            color: rgba(245, 240, 255, 0.55);
+            line-height: 1.8;
+        }
+
+        .credits-heart {
+            display: inline-block;
+            color: var(--pink);
+            animation: hb 1.4s ease-in-out infinite;
+            -webkit-text-fill-color: var(--pink);
+        }
+
+        @keyframes hb {
+
+            0%,
+            100% {
+                transform: scale(1)
+            }
+
+            50% {
+                transform: scale(1.3)
+            }
+        }
+
+        footer {
+            position: relative;
+            z-index: 1;
+            padding: 2rem;
+            text-align: center;
+            border-top: 1px solid rgba(109, 40, 217, 0.15);
+        }
+
+        footer p {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.68rem;
+            font-weight: 300;
+            color: var(--dim);
+            letter-spacing: 0.14em;
+        }
+
+        /* SCROLL REVEAL */
+        .sr {
+            opacity: 0;
+            transform: translateY(26px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        .sr.on {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .sr-d1 {
+            transition-delay: .1s
+        }
+
+        .sr-d2 {
+            transition-delay: .2s
+        }
+
+        .sr-d3 {
+            transition-delay: .3s
+        }
+
+        @media(max-width:700px) {
+            .hero-layout {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                padding: 5rem 1.5rem 3rem
+            }
+
+            .hero-owner.left,
+            .hero-owner.right {
+                display: none
+            }
+
+            .about-grid {
+                grid-template-columns: 1fr
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <canvas id="space-canvas"></canvas>
+
+    <a href="#credits" id="credits-bubble" title="Credits">
+        <svg viewBox="0 0 24 24">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+            <circle cx="12" cy="7" r="4" />
+        </svg>
+    </a>
+
+    <!-- ══ HERO ══ -->
+    <section id="hero">
+        <div class="hero-layout">
+            <div class="hero-owner left">
+                <img class="owner-skin" src="https://minotar.net/body/imascraaab/100" alt="imascraaab"
+                    onerror="this.onerror=null;this.src='https://minotar.net/body/steve/100'">
+                <span class="owner-ign">imascraaab</span>
+                <span class="owner-role">Owner</span>
+            </div>
+
+            <div class="hero-center">
+                <div class="hero-glow"></div>
+                <p class="hero-welcome">welcome to</p>
+                <h1 class="hero-name">MeoW</h1>
+                <span class="hero-tag">W Pikachu Guild</span>
+                <a href="https://discord.gg/4Tpc75KWBS" target="_blank" class="hero-btn"><span>Join Guild
+                        Discord</span></a>
+            </div>
+
+            <div class="hero-owner right">
+                <img class="owner-skin" src="https://minotar.net/body/LocalDiskC/100" alt="LocalDiskC"
+                    onerror="this.onerror=null;this.src='https://minotar.net/body/steve/100'">
+                <span class="owner-ign">LocalDiskC</span>
+                <span class="owner-role">Owner · Nex</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══ STAFF ══ -->
+    <section id="staff">
+        <div class="inner">
+            <span class="sec-eyebrow sr">The Team</span>
+            <h2 class="sec-title sr sr-d1">Guild <span style="color:var(--purple-3)">Staff</span></h2>
+            <div class="sec-line sr sr-d2"></div>
+            <div class="staff-row" style="margin-bottom:3rem;">
+                <div class="staff-card">
+                    <img class="staff-skin" src="https://minotar.net/body/imascraaab/80" alt="imascraaab"
+                        onerror="this.onerror=null;this.src='https://minotar.net/body/steve/80'">
+                    <div class="staff-info"><span class="staff-name">imascraaab</span><span
+                            class="staff-role role-owner">Owner</span></div>
+                </div>
+                <div class="staff-card">
+                    <img class="staff-skin" src="https://minotar.net/body/LocalDiskC/80" alt="LocalDiskC"
+                        onerror="this.onerror=null;this.src='https://minotar.net/body/steve/80'">
+                    <div class="staff-info"><span class="staff-name">LocalDiskC</span><span
+                            class="staff-alias">Nex</span><span class="staff-role role-owner">Owner</span></div>
+                </div>
+            </div>
+            <div class="staff-row">
+                <div class="staff-card">
+                    <img class="staff-skin" src="https://minotar.net/body/RubenInParis/80" alt="RubenInParis"
+                        onerror="this.onerror=null;this.src='https://minotar.net/body/steve/80'">
+                    <div class="staff-info"><span class="staff-name">RubenInParis</span><span
+                            class="staff-role role-exec">Executive</span></div>
+                </div>
+                <div class="staff-card">
+                    <img class="staff-skin" src="https://minotar.net/body/The_WarHummer/80" alt="The_WarHummer"
+                        onerror="this.onerror=null;this.src='https://minotar.net/body/steve/80'">
+                    <div class="staff-info"><span class="staff-name">The_WarHummer</span><span
+                            class="staff-role role-officer">Officer</span></div>
+                </div>
+                <div class="staff-card">
+                    <img class="staff-skin" src="https://minotar.net/body/scarqing/80" alt="scarqing"
+                        onerror="this.onerror=null;this.src='https://minotar.net/body/steve/80'">
+                    <div class="staff-info"><span class="staff-name">scarqing</span><span
+                            class="staff-role role-officer">Officer</span></div>
+                </div>
+                <div class="staff-card">
+                    <img class="staff-skin" src="https://minotar.net/body/SoftFrancaisToast/80" alt="SoftFrancaisToast"
+                        onerror="this.onerror=null;this.src='https://minotar.net/body/steve/80'">
+                    <div class="staff-info"><span class="staff-name">SoftFrancaisToast</span><span
+                            class="staff-role role-exec">Executive</span></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══ REQUIREMENTS ══ -->
+    <section id="requirements">
+        <div class="inner">
+            <span class="sec-eyebrow sr">Want In?</span>
+            <h2 class="sec-title sr sr-d1">Requirements</h2>
+            <div class="sec-line sr sr-d2"></div>
+            <div class="req-scroll" id="req-scroll">
+                <div class="req-card">
+                    <div class="req-num">01</div>
+                    <div class="req-text">PvP & Bedwars Skill</div>
+                    <div class="req-sub">Be above decent in PvP and Bedwars. We care about actual skill above everything
+                        else.</div>
+                </div>
+                <div class="req-card">
+                    <div class="req-num">02</div>
+                    <div class="req-text">No Alts</div>
+                    <div class="req-sub">No alternate accounts allowed — unless personally invited by the Owner herself.
+                    </div>
+                </div>
+                <div class="req-card">
+                    <div class="req-num">03</div>
+                    <div class="req-text">Decent Stats</div>
+                    <div class="req-sub">Stats matter — but they won't be held against you if you absolutely nail
+                        Requirement #1.</div>
+                </div>
+                <div class="req-card">
+                    <div class="req-num">04</div>
+                    <div class="req-text">Loyalty to MeoW</div>
+                    <div class="req-sub">Guildhopping will be punished. No exceptions. Once you're in, you're in for
+                        real.</div>
+                </div>
+                <div class="req-card">
+                    <div class="req-num">05</div>
+                    <div class="req-text">Keep the Peace</div>
+                    <div class="req-sub">Don't provoke beef with other guilds on MeoW's behalf. Keep drama outside the
+                        walls.</div>
+                </div>
+            </div>
+            <div class="req-note-box sr">
+                <span style="font-size:1.1rem;flex-shrink:0;margin-top:0.1rem">⚠️</span>
+                <p class="req-note-text">You will be skill tested even if you meet all of the above requirements. No
+                    shortcuts — prove yourself.</p>
+            </div>
+            <div class="apply-wrap sr sr-d1">
+                <a href="https://discord.gg/4Tpc75KWBS" target="_blank" class="apply-btn">
+                    <svg viewBox="0 0 24 24">
+                        <path
+                            d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057c.002.022.015.043.03.056a19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z" />
+                    </svg>
+                    <span>Apply on Discord</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══ ABOUT ══ -->
+    <section id="about">
+        <div class="inner">
+            <span class="sec-eyebrow sr">Who We Are</span>
+            <h2 class="sec-title sr sr-d1">About <span style="color:var(--purple-3)">MeoW</span></h2>
+            <div class="sec-line sr sr-d2"></div>
+            <div class="about-grid">
+                <div class="about-main sr">
+                    <p><strong>MeoW</strong> is a Minecraft guild on <strong>Pika Network</strong> — a community built
+                        for friends, skilled players, and everyone who vibes with the MeoW energy. Mostly active in
+                        <strong>Bedwars</strong>, we're led by <strong>imascraaab</strong> with a team that takes the
+                        game seriously while keeping things fun. We're not about numbers. We're about the right people.
+                    </p>
+                </div>
+                <div class="stat-tile sr sr-d1">
+                    <div class="stat-val">38</div>
+                    <div class="stat-key">Guild Level</div>
+                </div>
+                <div class="stat-tile sr sr-d2">
+                    <div class="stat-val">BW</div>
+                    <div class="stat-key">Main Game</div>
+                </div>
+                <div class="stat-tile sr">
+                    <div class="stat-val" style="color:var(--pink)">#MeoW</div>
+                    <div class="stat-key">Guild Tag</div>
+                </div>
+                <div class="stat-tile sr sr-d1">
+                    <div class="stat-val">Pika</div>
+                    <div class="stat-key">Server</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══ CREDITS ══ -->
+    <section id="credits">
+        <div class="inner">
+            <div class="credits-inner">
+                <div class="credits-left sr">
+                    <span class="credits-label">Made with</span>
+                    <h2 class="credits-name"><span class="credits-heart">♥</span> by xAPS_</h2>
+                    <p class="credits-desc">Designed and built for the MeoW Guild on Pika Network. Built for friends,
+                        MeoWs, and anyone who's ever hit a clean bedwars final.</p>
+                </div>
+                <img class="credits-skin sr sr-d1" src="https://minotar.net/body/xAPS_/100" alt="xAPS_"
+                    onerror="this.onerror=null;this.src='https://minotar.net/body/steve/100'">
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>© 2025 MeoW Guild &nbsp;·&nbsp; Pika Network &nbsp;·&nbsp; Made by xAPS_</p>
+    </footer>
+
+    <script>
+        // ── SPACE CANVAS ──
+        const canvas = document.getElementById('space-canvas');
+        const ctx = canvas.getContext('2d');
+        let W, H, particles = [], nebulae = [];
+
+        function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+
+        function init() {
+            particles = [];
+            for (let i = 0; i < 200; i++) {
+                particles.push({
+                    x: Math.random() * W, y: Math.random() * H,
+                    r: Math.random() * 1.4 + 0.2,
+                    op: Math.random() * 0.55 + 0.08,
+                    dx: (Math.random() - 0.5) * 0.12, dy: (Math.random() - 0.5) * 0.12,
+                    tw: Math.random() * Math.PI * 2, ts: Math.random() * 0.018 + 0.004
+                });
+            }
+            nebulae = [];
+            const colors = ['109,40,217', '139,92,246', '168,85,247', '109,40,217'];
+            for (let i = 0; i < 7; i++) {
+                nebulae.push({
+                    x: Math.random() * W, y: Math.random() * H,
+                    r: Math.random() * 220 + 80,
+                    col: colors[Math.floor(Math.random() * colors.length)],
+                    op: Math.random() * 0.055 + 0.015,
+                    ph: Math.random() * Math.PI * 2, sp: Math.random() * 0.003 + 0.001
+                });
+            }
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, W, H);
+            const bg = ctx.createLinearGradient(0, 0, 0, H);
+            bg.addColorStop(0, '#04030a'); bg.addColorStop(0.5, '#070518'); bg.addColorStop(1, '#04030a');
+            ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
+
+            nebulae.forEach(n => {
+                n.ph += n.sp;
+                const pulse = n.op * (0.75 + 0.25 * Math.sin(n.ph));
+                const g = ctx.createRadialGradient(n.x, n.y, 0, n.x, n.y, n.r);
+                g.addColorStop(0, `rgba(${n.col},${pulse})`);
+                g.addColorStop(1, 'transparent');
+                ctx.beginPath(); ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
+                ctx.fillStyle = g; ctx.fill();
+            });
+
+            particles.forEach(p => {
+                p.x += p.dx; p.y += p.dy; p.tw += p.ts;
+                if (p.x < 0) p.x = W; if (p.x > W) p.x = 0;
+                if (p.y < 0) p.y = H; if (p.y > H) p.y = 0;
+                const a = p.op * (0.55 + 0.45 * Math.sin(p.tw));
+                ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(196,181,253,${a})`; ctx.fill();
+            });
+
+            requestAnimationFrame(draw);
+        }
+
+        resize(); init(); draw();
+        window.addEventListener('resize', () => { resize(); init(); });
+
+        // ── SCROLL REVEAL ──
+        const obs = new IntersectionObserver(entries => {
+            entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('on'); obs.unobserve(e.target); } });
+        }, { threshold: 0.1 });
+        document.querySelectorAll('.sr').forEach(el => obs.observe(el));
+
+        // ── STAFF STAGGER ──
+        const sObs = new IntersectionObserver(entries => {
+            entries.forEach(e => {
+                if (e.isIntersecting) {
+                    setTimeout(() => e.target.classList.add('visible'), parseInt(e.target.dataset.d) || 0);
+                    sObs.unobserve(e.target);
+                }
+            });
+        }, { threshold: 0.08 });
+        document.querySelectorAll('.staff-card').forEach((el, i) => { el.dataset.d = i * 90; sObs.observe(el); });
+
+        // ── DRAG SCROLL ──
+        const rs = document.getElementById('req-scroll');
+        let down = false, sx, sl;
+        rs.addEventListener('mousedown', e => { down = true; sx = e.pageX - rs.offsetLeft; sl = rs.scrollLeft; });
+        rs.addEventListener('mouseleave', () => down = false);
+        rs.addEventListener('mouseup', () => down = false);
+        rs.addEventListener('mousemove', e => { if (!down) return; e.preventDefault(); rs.scrollLeft = sl - (e.pageX - rs.offsetLeft - sx) * 1.5; });
+    </script>
+</body>
+
+</html>
