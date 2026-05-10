@@ -1352,7 +1352,7 @@
     <script>
         // ── CONFIG ──
         const STAFF = [
-            { ign: 'RubenInParis', role: 'Executive', alias: '', type: 'exec', pose: 'marching' },
+            { ign: 'RubenInParis', role: 'Executive', alias: '', type: 'exec', pose: 'dab' },
             { ign: 'SoftFrancaisToas', role: 'Executive', alias: '', type: 'exec', pose: 'high_five' },
             { ign: 'The_WarHummer', role: 'GvG Manager', alias: '', type: 'officer', pose: 'archer' },
             { ign: 'scarqing', role: 'Executive', alias: '', type: 'officer', pose: 'pointing' }
@@ -1893,6 +1893,14 @@
                 p.skin.rightArm.rotation.x = Math.PI - 0.5;
                 p.skin.leftArm.rotation.z = -0.5;
                 p.skin.rightArm.rotation.z = 0.5;
+            } else if (pose === 'dab') {
+                // Classic dab: right arm shoots up diagonally, head buries into left elbow
+                p.skin.rightArm.rotation.x = -(Math.PI / 2 + 0.2);
+                p.skin.rightArm.rotation.z = -Math.PI / 4;
+                p.skin.leftArm.rotation.x = -(Math.PI / 2 - 0.3);
+                p.skin.leftArm.rotation.z = Math.PI / 4;
+                p.skin.head.rotation.x = 0.35;
+                p.skin.head.rotation.y = -0.45;
             }
 
             container.appendChild(viewer.canvas);
