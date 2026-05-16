@@ -1197,6 +1197,88 @@
             .sec-title {
                 font-size: clamp(2.5rem, 10vw, 4rem);
             }
+
+            /* Kill expensive backdrop-filter blurs on mobile */
+            .nav-credits-btn,
+            .hero-btn,
+            .req-card {
+                backdrop-filter: none !important;
+                -webkit-backdrop-filter: none !important;
+            }
+
+            /* Disable haze blur animations — biggest GPU killer */
+            .haze-cloud {
+                filter: none !important;
+                animation: none !important;
+                opacity: 0.3;
+            }
+            .haze-container {
+                animation: none !important;
+            }
+            .about-haze {
+                filter: none !important;
+                animation: none !important;
+            }
+
+            /* Disable hero glitch — expensive filter on mobile */
+            .hero-name {
+                animation: none !important;
+                filter: none !important;
+            }
+
+            /* Simplify staff-name shimmer on mobile */
+            .staff-name {
+                animation: none !important;
+                background: none !important;
+                -webkit-text-fill-color: #c4b5fd !important;
+                color: #c4b5fd !important;
+                filter: none !important;
+            }
+
+            /* Simplify float animations */
+            .hero-skin,
+            .credits-skin {
+                animation: none !important;
+            }
+
+            /* Reduce translateZ usage on mobile — no 3D GPU layer promotion needed */
+            .staff-skin,
+            .staff-name,
+            .staff-alias,
+            .staff-role {
+                transform: none !important;
+            }
+
+            /* Custom cursor hidden on touch */
+            .cursor-dot,
+            .cursor-ring {
+                display: none !important;
+            }
+            body {
+                cursor: auto !important;
+            }
+            a, button, [role="button"], input, select, textarea {
+                cursor: auto !important;
+            }
+
+            /* Hide canvas on low-power — replaced by static gradient */
+            #space-canvas {
+                display: none;
+            }
+
+            /* Dot grid reduced opacity */
+            .dot-grid {
+                opacity: 0.5;
+            }
+        }
+
+        /* Respect prefers-reduced-motion system setting */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
         }
     </style>
 </head>
@@ -1537,24 +1619,38 @@
         splitText('.split-text-word', 'word');
 
         // ── CANVAS INTERACTIVE EFFECTS ──
+        // ── MOBILE DETECTION ──
+        const isMobile = /Android|iPhone|iPad|iPod|webOS|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+            || (navigator.maxTouchPoints > 1 && window.innerWidth <= 768);
+
         const canvas = document.getElementById('space-canvas');
-        const ctx = canvas.getContext('2d');
+        const ctx = canvas ? canvas.getContext('2d') : null;
         let W, H;
         let bubbles = [], nebulae = [], waves = [], stars = [];
         let mouseX = 0, mouseY = 0;
 
-        window.addEventListener('mousemove', (e) => {
-            mouseX = e.clientX;
-            mouseY = e.clientY;
-        });
+        // Only track mouse on desktop
+        if (!isMobile) {
+            window.addEventListener('mousemove', (e) => {
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+            });
+        }
 
-        function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+        function resize() {
+            W = window.innerWidth;
+            H = window.innerHeight;
+            if (canvas) { canvas.width = W; canvas.height = H; }
+        }
         window.addEventListener('resize', resize);
         resize();
 
         function initCanvas() {
+            if (isMobile) return; // Skip on mobile — canvas is hidden
+
             bubbles = [];
-            for (let i = 0; i < 100; i++) {
+            // Reduced count: 100 → 40 bubbles on desktop
+            for (let i = 0; i < 40; i++) {
                 bubbles.push({
                     x: Math.random() * W, y: Math.random() * H,
                     r: Math.random() * 2 + 0.5,
@@ -1576,7 +1672,8 @@
                 });
             }
             stars = [];
-            for (let i = 0; i < 200; i++) {
+            // Reduced: 200 → 100 stars
+            for (let i = 0; i < 100; i++) {
                 stars.push({
                     x: Math.random() * W, y: Math.random() * H,
                     r: Math.random() * 1.5,
@@ -1586,7 +1683,8 @@
                 });
             }
             waves = [];
-            for (let i = 0; i < 6; i++) {
+            // Reduced: 6 → 3 waves
+            for (let i = 0; i < 3; i++) {
                 waves.push({
                     side: i % 2 === 0 ? 'left' : 'right',
                     distFromEdge: Math.random() * 60 + 20,
@@ -1679,11 +1777,13 @@
 
             requestAnimationFrame(drawCanvas);
         }
-        initCanvas(); drawCanvas();
+        if (!isMobile) { initCanvas(); drawCanvas(); }
 
         function createWaterBubbles() {
+            if (isMobile) return; // Skip DOM bubble injection on mobile
             const hero = document.getElementById('hero');
-            for (let i = 0; i < 30; i++) {
+            // Reduced: 30 → 12 bubbles
+            for (let i = 0; i < 12; i++) {
                 const bubble = document.createElement('div');
                 bubble.className = 'water-bubble';
                 bubble.style.left = Math.random() * 100 + 'vw';
@@ -1845,23 +1945,25 @@
             });
         });
 
-        // Requirements Horizontal Pin
-        const reqWrap = document.querySelector('.req-pin-wrapper');
-        const getScrollAmount = () => -(reqWrap.scrollWidth - window.innerWidth + window.innerWidth * 0.1);
+        // Requirements Horizontal Pin (desktop only — horizontal scroll is confusing on touch)
+        if (!isMobile) {
+            const reqWrap = document.querySelector('.req-pin-wrapper');
+            const getScrollAmount = () => -(reqWrap.scrollWidth - window.innerWidth + window.innerWidth * 0.1);
 
-        gsap.to(reqWrap, {
-            x: getScrollAmount,
-            ease: "none",
-            scrollTrigger: {
-                trigger: "#requirements",
-                start: "top top",
-                end: () => "+=" + (reqWrap.scrollWidth * 0.6),
-                pin: true,
-                animation: gsap.to(reqWrap, { x: getScrollAmount }),
-                scrub: 1,
-                invalidateOnRefresh: true
-            }
-        });
+            gsap.to(reqWrap, {
+                x: getScrollAmount,
+                ease: "none",
+                scrollTrigger: {
+                    trigger: "#requirements",
+                    start: "top top",
+                    end: () => "+=" + (reqWrap.scrollWidth * 0.6),
+                    pin: true,
+                    animation: gsap.to(reqWrap, { x: getScrollAmount }),
+                    scrub: 1,
+                    invalidateOnRefresh: true
+                }
+            });
+        }
 
         // Counter Animation
         gsap.utils.toArray('.counter').forEach(el => {
@@ -1876,28 +1978,30 @@
             });
         });
 
-        // ── 3D TILT EFFECT ──
-        document.querySelectorAll('.tilt-card').forEach(card => {
-            card.addEventListener('mousemove', e => {
-                const rect = card.getBoundingClientRect();
-                const x = e.clientX - rect.left;
-                const y = e.clientY - rect.top;
-                const xc = rect.width / 2;
-                const yc = rect.height / 2;
-                const dx = x - xc;
-                const dy = y - yc;
-                gsap.to(card, {
-                    rotationY: dx / 10,
-                    rotationX: -dy / 10,
-                    duration: 0.4,
-                    transformPerspective: 1000,
-                    ease: "power1.out"
+        // ── 3D TILT EFFECT (desktop only) ──
+        if (!isMobile) {
+            document.querySelectorAll('.tilt-card').forEach(card => {
+                card.addEventListener('mousemove', e => {
+                    const rect = card.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    const xc = rect.width / 2;
+                    const yc = rect.height / 2;
+                    const dx = x - xc;
+                    const dy = y - yc;
+                    gsap.to(card, {
+                        rotationY: dx / 10,
+                        rotationX: -dy / 10,
+                        duration: 0.4,
+                        transformPerspective: 1000,
+                        ease: "power1.out"
+                    });
+                });
+                card.addEventListener('mouseleave', () => {
+                    gsap.to(card, { rotationY: 0, rotationX: 0, duration: 0.7, ease: "power2.out" });
                 });
             });
-            card.addEventListener('mouseleave', () => {
-                gsap.to(card, { rotationY: 0, rotationX: 0, duration: 0.7, ease: "power2.out" });
-            });
-        });
+        }
 
         // ── SKINVIEW3D INITIALIZATION ──
         function createSkinViewer(id, ign, pose, w, h) {
