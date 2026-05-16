@@ -5,6 +5,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MeoW — W Pikachu Guild</title>
+    <link rel="icon" type="image/png" href="favicon-96x96.png" sizes="96x96" />
+    <link rel="shortcut icon" href="favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-title" content="MeoW" />
+    <link rel="manifest" href="site.webmanifest" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
@@ -51,6 +56,43 @@
             font-family: 'Plus Jakarta Sans', sans-serif;
             overflow-x: hidden;
             -webkit-font-smoothing: antialiased;
+            cursor: none;
+        }
+
+        a, button, [role="button"], input, select, textarea {
+            cursor: none !important;
+        }
+
+        /* CUSTOM CURSOR */
+        .cursor-dot,
+        .cursor-ring {
+            position: fixed;
+            top: 0;
+            left: 0;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            z-index: 9999;
+            pointer-events: none;
+        }
+
+        .cursor-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--purple-4);
+        }
+
+        .cursor-ring {
+            width: 40px;
+            height: 40px;
+            border: 2px solid rgba(139, 92, 246, 0.5);
+            transition: width 0.3s ease, height 0.3s ease, background-color 0.3s ease, border-color 0.3s ease;
+        }
+
+        .cursor-ring.hover {
+            width: 60px;
+            height: 60px;
+            background-color: rgba(139, 92, 246, 0.1);
+            border-color: var(--purple-3);
         }
 
         /* BACKGROUNDS */
@@ -477,7 +519,7 @@
         .staff-grid {
             display: flex;
             flex-wrap: nowrap;
-            gap: 2.5rem;
+            gap: 1.5rem;
             justify-content: center;
             margin-top: 4rem;
         }
@@ -515,8 +557,8 @@
         }
 
         .staff-skin {
-            width: 260px;
-            height: 520px;
+            width: 280px;
+            height: 440px;
             image-rendering: pixelated;
             filter: drop-shadow(0 10px 20px rgba(109, 40, 217, 0.5));
             transform: translateZ(30px);
@@ -528,13 +570,40 @@
             filter: drop-shadow(0 10px 30px rgba(167, 139, 250, 0.7));
         }
 
+        #skin-The_WarHummer {
+            background-image: url('hummer.png');
+            background-size: 115%;
+            background-position: center 85%;
+            background-repeat: no-repeat;
+        }
+
         .staff-name {
             font-family: 'Plus Jakarta Sans', sans-serif;
             font-size: 1.2rem;
-            font-weight: 600;
-            color: var(--purple-7);
+            font-weight: 700;
             transform: translateZ(20px);
             text-align: center;
+            background: linear-gradient(
+                90deg,
+                #c4b5fd 0%,
+                #a78bfa 20%,
+                #ffffff 40%,
+                #e9d5ff 50%,
+                #a78bfa 60%,
+                #7c3aed 80%,
+                #c4b5fd 100%
+            );
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: ign-shimmer 3s linear infinite;
+            filter: drop-shadow(0 0 6px rgba(167, 139, 250, 0.6));
+        }
+
+        @keyframes ign-shimmer {
+            0%   { background-position: 200% center; }
+            100% { background-position: 0% center; }
         }
 
         .staff-alias {
@@ -1133,6 +1202,10 @@
 </head>
 
 <body>
+    <!-- CUSTOM CURSOR -->
+    <div class="cursor-dot"></div>
+    <div class="cursor-ring"></div>
+
 
     <!-- CLOUD HAZE -->
     <div class="haze-container">
@@ -1354,7 +1427,7 @@
         const STAFF = [
             { ign: 'RubenInParis', role: 'Executive', alias: '', type: 'exec', pose: 'dab' },
             { ign: 'SoftFrancaisToas', role: 'Executive', alias: '', type: 'exec', pose: 'high_five' },
-            { ign: 'The_WarHummer', role: 'GvG Manager', alias: '', type: 'officer', pose: 'archer' },
+            { ign: 'The_WarHummer', role: 'GvG Manager', alias: '', type: 'officer', pose: 'hummer' },
             { ign: 'scarqing', skinIgn: 'FizzyKibble', role: 'Executive', alias: '', type: 'officer', pose: 'pointing' }
         ];
 
@@ -1838,7 +1911,7 @@
             });
 
             // Adjust camera & lighting for good isometric look
-            viewer.camera.position.set(20, 20, 40);
+            viewer.camera.position.set(25, 25, 50);
             viewer.camera.lookAt(0, 0, 0);
             viewer.autoRotate = false;
             viewer.autoRotateSpeed = 0.5;
@@ -1901,6 +1974,23 @@
                 p.skin.leftArm.rotation.z = Math.PI / 4;
                 p.skin.head.rotation.x = 0.35;
                 p.skin.head.rotation.y = -0.45;
+            } else if (pose === 'hummer') {
+                // Sitting on the hummer roof with hands up in the air
+                p.skin.leftLeg.rotation.x = -Math.PI / 2;
+                p.skin.rightLeg.rotation.x = -Math.PI / 2;
+                
+                // Hands up!
+                p.skin.leftArm.rotation.x = Math.PI - 0.3;
+                p.skin.rightArm.rotation.x = Math.PI - 0.3;
+                p.skin.leftArm.rotation.z = -0.5;
+                p.skin.rightArm.rotation.z = 0.5;
+                
+                // Position on roof (up and to the right)
+                p.position.y = 12;
+                p.position.x = 8;
+                
+                // Reduce the size of the model so it fits the car proportions better
+                viewer.zoom = 0.45;
             }
 
             container.appendChild(viewer.canvas);
@@ -1916,10 +2006,39 @@
 
             // Staff (Generated by JS earlier in the flow, so they exist in DOM now)
             STAFF.forEach(member => {
-                createSkinViewer(`skin-${member.ign}`, member.skinIgn || member.ign, member.pose, 260, 520);
+                createSkinViewer(`skin-${member.ign}`, member.skinIgn || member.ign, member.pose, 220, 440);
             });
-        });
+            // CUSTOM CURSOR LOGIC
+            const cursorDot = document.querySelector('.cursor-dot');
+            const cursorRing = document.querySelector('.cursor-ring');
+            
+            if (cursorDot && cursorRing) {
+                let mouseX = window.innerWidth / 2;
+                let mouseY = window.innerHeight / 2;
+                let ringX = mouseX;
+                let ringY = mouseY;
 
+                window.addEventListener('mousemove', (e) => {
+                    mouseX = e.clientX;
+                    mouseY = e.clientY;
+                    cursorDot.style.transform = `translate(${mouseX}px, ${mouseY}px) translate(-50%, -50%)`;
+                });
+
+                const renderCursor = () => {
+                    ringX += (mouseX - ringX) * 0.15;
+                    ringY += (mouseY - ringY) * 0.15;
+                    cursorRing.style.transform = `translate(${ringX}px, ${ringY}px) translate(-50%, -50%)`;
+                    requestAnimationFrame(renderCursor);
+                };
+                requestAnimationFrame(renderCursor);
+
+                const hoverElements = document.querySelectorAll('a, button, .staff-card, .feat-card, .logo-container');
+                hoverElements.forEach(el => {
+                    el.addEventListener('mouseenter', () => cursorRing.classList.add('hover'));
+                    el.addEventListener('mouseleave', () => cursorRing.classList.remove('hover'));
+                });
+            }
+        });
     </script>
 </body>
 
