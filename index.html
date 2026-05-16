@@ -59,7 +59,12 @@
             cursor: none;
         }
 
-        a, button, [role="button"], input, select, textarea {
+        a,
+        button,
+        [role="button"],
+        input,
+        select,
+        textarea {
             cursor: none !important;
         }
 
@@ -579,20 +584,19 @@
 
         .staff-name {
             font-family: 'Plus Jakarta Sans', sans-serif;
-            font-size: 1.2rem;
+            font-size: 1.5rem;
             font-weight: 700;
-            transform: translateZ(20px);
+            display: block;
+            width: 100%;
             text-align: center;
-            background: linear-gradient(
-                90deg,
-                #c4b5fd 0%,
-                #a78bfa 20%,
-                #ffffff 40%,
-                #e9d5ff 50%,
-                #a78bfa 60%,
-                #7c3aed 80%,
-                #c4b5fd 100%
-            );
+            background: linear-gradient(90deg,
+                    #c4b5fd 0%,
+                    #a78bfa 20%,
+                    #ffffff 40%,
+                    #e9d5ff 50%,
+                    #a78bfa 60%,
+                    #7c3aed 80%,
+                    #c4b5fd 100%);
             background-size: 200% auto;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -602,16 +606,23 @@
         }
 
         @keyframes ign-shimmer {
-            0%   { background-position: 200% center; }
-            100% { background-position: 0% center; }
+            0% {
+                background-position: 200% center;
+            }
+
+            100% {
+                background-position: 0% center;
+            }
         }
 
         .staff-alias {
             font-family: 'DM Sans', sans-serif;
             font-size: 0.9rem;
             color: var(--purple-5);
-            transform: translateZ(15px);
             margin-top: 0.2rem;
+            display: block;
+            width: 100%;
+            text-align: center;
         }
 
         .staff-role {
@@ -1212,9 +1223,11 @@
                 animation: none !important;
                 opacity: 0.3;
             }
+
             .haze-container {
                 animation: none !important;
             }
+
             .about-haze {
                 filter: none !important;
                 animation: none !important;
@@ -1254,10 +1267,17 @@
             .cursor-ring {
                 display: none !important;
             }
+
             body {
                 cursor: auto !important;
             }
-            a, button, [role="button"], input, select, textarea {
+
+            a,
+            button,
+            [role="button"],
+            input,
+            select,
+            textarea {
                 cursor: auto !important;
             }
 
@@ -1274,7 +1294,10 @@
 
         /* Respect prefers-reduced-motion system setting */
         @media (prefers-reduced-motion: reduce) {
-            *, *::before, *::after {
+
+            *,
+            *::before,
+            *::after {
                 animation-duration: 0.01ms !important;
                 animation-iteration-count: 1 !important;
                 transition-duration: 0.01ms !important;
@@ -2082,17 +2105,17 @@
                 // Sitting on the hummer roof with hands up in the air
                 p.skin.leftLeg.rotation.x = -Math.PI / 2;
                 p.skin.rightLeg.rotation.x = -Math.PI / 2;
-                
+
                 // Hands up!
                 p.skin.leftArm.rotation.x = Math.PI - 0.3;
                 p.skin.rightArm.rotation.x = Math.PI - 0.3;
                 p.skin.leftArm.rotation.z = -0.5;
                 p.skin.rightArm.rotation.z = 0.5;
-                
+
                 // Position on roof (up and to the right)
                 p.position.y = 12;
                 p.position.x = 8;
-                
+
                 // Reduce the size of the model so it fits the car proportions better
                 viewer.zoom = 0.45;
             }
@@ -2115,7 +2138,7 @@
             // CUSTOM CURSOR LOGIC
             const cursorDot = document.querySelector('.cursor-dot');
             const cursorRing = document.querySelector('.cursor-ring');
-            
+
             if (cursorDot && cursorRing) {
                 let mouseX = window.innerWidth / 2;
                 let mouseY = window.innerHeight / 2;
